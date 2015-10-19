@@ -5,6 +5,7 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 // Create a HTTP server app.
 var app = express();
+app.use(bodyParser());
 var db = new sqlite3.Database(':memory:');
 
 var data = JSON.parse(fs.readFileSync('diamonds.json','utf8'));
@@ -33,19 +34,23 @@ app.get('/diamonds/:id', function(req, res){
 
 app.post('/diamonds/add/', function(req, res){
   var stmt = db.prepare("INSERT INTO diamonds VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-  stmt.run(req.body.carat, req.body.cut, req.body.color, req.body.clarity, req.body.depth, req.body.tablefield, req.body.price, req.body.x, req.body.y, req.body.z);
+  stmt.run(req.body.carat, req.body.cut, req.body.color, req.body.clarity, req.body.depth, req.body.table, req.body.price, req.body.x, req.body.y, req.body.z);
   stmt.finalize();
+  res.send("Diamond Added\n");
 });
 
 app.put('/diamonds/edit/:id', function(req, res){
   var stmt = db.prepare("INSERT INTO diamonds VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
   stmt.run(req.params.id, req.body.carat, req.body.cut, req.body.color, req.body.clarity, req.body.depth, req.body.tablefield, req.body.price, req.body.x, req.body.y, req.body.z);
   stmt.finalize();
+  res.send("Diamond " + req.params.id + " edited.\n");
 });
 
 app.delete('/diamonds/delete/:id', function(req, res){
   var stmt = db.prepare("DELETE from diamonds where id = ?");
   stmt.run(req.params.id);
+  stmt.finalize();
+  res.send("Delted diamond " + req.params.id);
 });
 
 // Start the server.
